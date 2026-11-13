@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gestion NSM</string>
+    <string name="title_activity_main">Gestion NSM</string>
+    <string name="package_name">fr.normandysoldiersmemory.gestion</string>
+    <string name="custom_url_scheme">fr.normandysoldiersmemory.gestion</string>
+</resources>

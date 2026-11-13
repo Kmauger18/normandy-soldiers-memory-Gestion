@@ -55,3 +55,21 @@ Aucune étape de compilation : les fichiers sont servis tels quels.
 | `faq` | Questions fréquentes |
 | `photos` | Photos de la galerie (version réduite + légende, catégorie, ordre) |
 | `photos_hd` | Grande version de chaque photo ajoutée, ouverte dans la visionneuse |
+
+## Application Android
+
+**Télécharger l'APK : [`apk/Gestion-NSM.apk`](apk/Gestion-NSM.apk)** (sur GitHub, bouton « Download raw file »).
+
+Installation sur le téléphone : ouvrir le fichier téléchargé, autoriser l'installation d'applications provenant de cette source si Android le demande, puis **Installer**. L'application s'appelle **Gestion NSM**.
+
+L'application ouvre l'espace de gestion en ligne : chaque mise à jour poussée sur GitHub y apparaît sans réinstaller l'application. On se connecte avec les mêmes comptes Firebase que sur le site de gestion. Les photos peuvent être prises directement avec l'appareil photo du téléphone. Sans internet, elle affiche une page « Pas de connexion » avec un bouton pour réessayer.
+
+Le dossier `android-app/` contient le projet (Capacitor). Recompiler l'APK (Java 21 et SDK Android 35 requis) :
+
+```bash
+cd android-app
+npm install
+npm run apk   # → android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+À recompiler seulement si l'icône, le nom ou l'adresse de l'espace de gestion changent.

@@ -1,0 +1,13 @@
+{
+  "appId": "fr.normandysoldiersmemory.gestion",
+  "appName": "Gestion NSM",
+  "webDir": "www",
+  "server": {
+    "url": "https://kmauger18.github.io/normandy-soldiers-memory-Gestion/",
+    "errorPath": "hors-ligne.html",
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#16180f"
+  }
+}
