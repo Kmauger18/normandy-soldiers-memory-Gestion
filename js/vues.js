@@ -1,7 +1,7 @@
 // Écrans de l'espace de gestion
 import * as S from './store.js';
 import { $, $$, esc, ic, toast, ouvrirFenetre, fermerFenetre, confirmer, champ, lireFormulaire, preparerPhoto, telecharger, isoJour, dateLisible } from './ui.js';
-import { GROUPES_TEXTES, TEXTES_ORIGINE, CHAMPS_COORD, STATUTS_EVT, CATEGORIES } from './donnees.js';
+import { PAGES_TEXTES, TEXTES_ORIGINE, CHAMPS_COORD, STATUTS_EVT, CATEGORIES } from './donnees.js';
 import { SITE_URL } from '../firebase-config.js';
 
 const erreur = e => { console.error(e); toast(S.messageErreur(e), 'erreur'); };
@@ -104,26 +104,143 @@ export const VUES = {
   // -------------------------------------------------------------- Textes
   textes: {
     titre: 'Textes du site', icone: 'textes', formulaire: true,
+    pageId: 'accueil',
+    brouillon: {},            // modifications pas encore enregistrées : { cle: texte }
     rendre(el) {
-      const t = S.textes();
-      el.innerHTML = `<p class="intro">Les modifications apparaissent sur le site dès l'enregistrement (rechargez la page du site pour les voir).</p>` +
-        GROUPES_TEXTES.map((g, gi) => `
-        <form class="carte" data-groupe="${gi}">
-          <div class="carte-tete"><h3>${esc(g.titre)}</h3>${g.page !== null ? `<a class="lien" href="${lienSite(g.page)}" target="_blank" rel="noopener">Voir la page ${ic('externe')}</a>` : ''}</div>
-          ${g.champs.map(c => `<div class="champ-texte">${champ({ ...c, type: c.multi ? 'texte' : c.type, valeur: t[c.cle] })}${t[c.cle] !== TEXTES_ORIGINE[c.cle] ? `<button type="button" class="lien petit" data-origine="${c.cle}">Remettre le texte d'origine</button>` : ''}</div>`).join('')}
-          <div class="actions"><button class="btn btn-primaire" type="submit">${ic('ok')} Enregistrer « ${esc(g.titre)} »</button></div>
-        </form>`).join('');
-      $$('textarea', el).forEach(a => { a.rows = Math.max(2, Math.min(8, Math.ceil(a.value.length / 90))); });
-      $$('form', el).forEach(f => f.onsubmit = async e => {
-        e.preventDefault();
-        const vals = lireFormulaire(f);
-        try { okEnregistre(await S.modifier('contenu', 'textes', vals)); } catch (err) { erreur(err); }
-      });
+      const enregistres = S.textes();
+      const val = cle => (cle in this.brouillon ? this.brouillon[cle] : enregistres[cle]) ?? '';
+      const page = PAGES_TEXTES.find(p => p.id === this.pageId) || PAGES_TEXTES[0];
+      const clesPage = p => p.zones.flatMap(z => z.champs.map(c => c.cle));
+      const nbBrouillon = p => clesPage(p).filter(c => c in this.brouillon).length;
+      const nbPerso = p => clesPage(p).filter(c => val(c) !== TEXTES_ORIGINE[c]).length;
+
+      const carte = c => {
+        const v = val(c.cle), id = 't_' + c.cle;
+        const entree = c.type === 'ligne'
+          ? `<input id="${id}" data-cle="${c.cle}" type="text" value="${esc(v)}">`
+          : `<textarea id="${id}" data-cle="${c.cle}" rows="${c.type === 'titre' ? 2 : 3}">${esc(v)}</textarea>`;
+        return `
+          <div class="champ-cms" data-champ="${c.cle}">
+            <div class="champ-cms-tete"><label for="${id}">${esc(c.label)}</label><span class="compteur"></span></div>
+            ${entree}
+            <div class="champ-cms-pied">
+              <span class="etat-champ"></span>
+              <button type="button" class="lien petit" data-origine="${c.cle}">Remettre le texte d'origine</button>
+            </div>
+            ${c.aide ? `<p class="aide">${esc(c.aide)}</p>` : ''}
+          </div>`;
+      };
+
+      el.innerHTML = `
+        <div class="textes">
+          <nav class="textes-pages" aria-label="Pages du site">
+            <p class="textes-pages-titre">Pages du site</p>
+            ${PAGES_TEXTES.map(p => `
+              <button type="button" data-page="${p.id}" class="${p.id === page.id ? 'on' : ''}">
+                <span>${esc(p.titre)}</span>
+                <small data-badge="${p.id}"></small>
+              </button>`).join('')}
+          </nav>
+          <div class="textes-editeur">
+            <div class="textes-tete">
+              <div><h3>${esc(page.titre)}</h3><p class="muet">${clesPage(page).length} texte${clesPage(page).length > 1 ? 's' : ''} modifiable${clesPage(page).length > 1 ? 's' : ''} · <span data-perso></span></p></div>
+              <a class="btn btn-clair" href="${lienSite(page.page)}" target="_blank" rel="noopener">${ic('externe')} Voir la page en ligne</a>
+            </div>
+            <div class="apercu-page" aria-label="Aperçu"><span class="apercu-etiquette">Aperçu du haut de la page</span><div id="apercu"></div></div>
+            ${page.note ? `<p class="note-page">${ic('alerte')}<span>${esc(page.note)} <a class="lien" href="${page.lienNote}">Y aller →</a></span></p>` : ''}
+            ${page.zones.map((z, i) => `
+              <section class="zone">
+                <h4><span>${i + 1}</span>${esc(z.titre)}</h4>
+                <div class="zone-champs">${z.champs.map(carte).join('')}</div>
+              </section>`).join('')}
+          </div>
+        </div>
+        <div class="barre-enregistrer" id="barre-enr" hidden>
+          <span id="barre-enr-texte"></span>
+          <div><button type="button" class="btn btn-clair" id="annuler-tout">Annuler</button><button type="button" class="btn btn-primaire" id="enregistrer-tout">${ic('ok')} Enregistrer</button></div>
+        </div>`;
+
+      const definitions = Object.fromEntries(PAGES_TEXTES.flatMap(p => p.zones.flatMap(z => z.champs)).map(c => [c.cle, c]));
+      const ajuster = t => { if (t.tagName === 'TEXTAREA') { t.style.height = 'auto'; t.style.height = t.scrollHeight + 2 + 'px'; } };
+
+      const majChamp = cle => {
+        const boite = $(`[data-champ="${cle}"]`, el); if (!boite) return;
+        const v = val(cle), max = definitions[cle].max;
+        const cpt = $('.compteur', boite);
+        cpt.textContent = max ? `${v.length} / ${max}` : `${v.length}`;
+        cpt.classList.toggle('long', !!max && v.length > max);
+        const etat = $('.etat-champ', boite);
+        const brouillon = cle in this.brouillon, perso = v !== TEXTES_ORIGINE[cle];
+        etat.className = 'etat-champ ' + (brouillon ? 'non-enr' : perso ? 'perso' : '');
+        etat.textContent = brouillon ? 'Non enregistré' : perso ? 'Personnalisé' : 'Texte d\'origine';
+        boite.classList.toggle('modifie', brouillon);
+        $('[data-origine]', boite).hidden = !perso;
+      };
+      const majApercu = () => {
+        const a = $('#apercu', el);
+        if (page.apercu === 'accueil') {
+          a.className = 'apercu apercu-accueil';
+          a.innerHTML = `<p class="ap-eyebrow">Association de reconstitution historique · Calvados</p>
+            <p class="ap-h1">${esc(val('accueil_hero_titre')).replace(/\n/g, '<br>')}<br><em>${esc(val('accueil_hero_accent'))}</em></p>
+            <p class="ap-texte">${esc(val('accueil_hero_texte'))}</p>`;
+        } else {
+          const z = page.zones[0].champs;
+          a.className = 'apercu apercu-bandeau';
+          a.innerHTML = `<p class="ap-eyebrow">${esc(page.titre)}</p><p class="ap-h1">${esc(val(z[0].cle))}</p><p class="ap-texte">${esc(val(z[1].cle))}</p>`;
+        }
+      };
+      const majCompteurs = () => {
+        PAGES_TEXTES.forEach(p => {
+          const b = $(`[data-badge="${p.id}"]`, el), n = nbBrouillon(p);
+          b.textContent = n ? `${n} non enreg.` : (nbPerso(p) ? 'modifiée' : '');
+          b.className = n ? 'non-enr' : nbPerso(p) ? 'perso' : '';
+        });
+        const n = nbPerso(page);
+        $('[data-perso]', el).textContent = n ? `${n} personnalisé${n > 1 ? 's' : ''}` : 'tous d\'origine';
+        const total = Object.keys(this.brouillon).length;
+        $('#barre-enr', el).hidden = !total;
+        $('#barre-enr-texte', el).innerHTML = `<b>${total}</b> modification${total > 1 ? 's' : ''} non enregistrée${total > 1 ? 's' : ''}${Object.keys(this.brouillon).some(c => !clesPage(page).includes(c)) ? ' <span class="muet">(dont sur d\'autres pages)</span>' : ''}`;
+        el.dataset.modifie = total ? '1' : '0';
+      };
+
+      const toutMettreAJour = () => { Object.keys(definitions).forEach(majChamp); majApercu(); majCompteurs(); };
+      toutMettreAJour();
+      $$('[data-cle]', el).forEach(ajuster);
+
+      $$('[data-cle]', el).forEach(t => t.addEventListener('input', () => {
+        const cle = t.dataset.cle;
+        let v = t.value;
+        if (definitions[cle].type === 'ligne') v = v.replace(/\n/g, ' ');
+        if (v === (enregistres[cle] ?? '')) delete this.brouillon[cle]; else this.brouillon[cle] = v;
+        ajuster(t); majChamp(cle); majApercu(); majCompteurs();
+      }));
       $$('[data-origine]', el).forEach(b => b.onclick = () => {
-        const z = $(`[name="${b.dataset.origine}"]`, el); z.value = TEXTES_ORIGINE[b.dataset.origine];
-        toast('Texte d\'origine remis : pensez à enregistrer');
+        const cle = b.dataset.origine, t = $(`[data-cle="${cle}"]`, el);
+        t.value = TEXTES_ORIGINE[cle]; t.dispatchEvent(new Event('input', { bubbles: true }));
+        t.focus();
       });
-    }
+      $$('[data-page]', el).forEach(b => b.onclick = () => { this.pageId = b.dataset.page; this.rendre(el); window.scrollTo(0, 0); });
+
+      const enregistrer = async () => {
+        const modifs = { ...this.brouillon };
+        if (!Object.keys(modifs).length) return;
+        const vide = Object.entries(modifs).find(([, v]) => !v.trim());
+        if (vide) {
+          if (!await confirmer(`Le texte « ${definitions[vide[0]].label} » est vide : le texte d'origine sera affiché sur le site à la place. Enregistrer quand même ?`, { libelle: 'Enregistrer', danger: false })) return;
+        }
+        const bouton = $('#enregistrer-tout', el); bouton.disabled = true;
+        try {
+          const r = await S.modifier('contenu', 'textes', modifs);
+          this.brouillon = {}; okEnregistre(r); this.rendre(el);
+        } catch (err) { erreur(err); bouton.disabled = false; }
+      };
+      $('#enregistrer-tout', el).onclick = enregistrer;
+      $('#annuler-tout', el).onclick = async () => {
+        if (await confirmer('Annuler toutes les modifications non enregistrées ?', { libelle: 'Annuler les modifications' })) { this.brouillon = {}; this.rendre(el); }
+      };
+      el.onkeydown = e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); enregistrer(); } };
+    },
+    aDesModifications() { return Object.keys(this.brouillon).length > 0; },
   },
 
   // -------------------------------------------------------------- Agenda

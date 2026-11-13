@@ -59,10 +59,17 @@ function rendreVue(force = false) {
   $$('#menu a').forEach(a => a.classList.toggle('actif', a.dataset.vue === vue));
   const y = nouvelle ? 0 : window.scrollY;
   el.dataset.modifie = '0';
+  el.onkeydown = null;
   try { VUES[vue].rendre(el); } catch (e) { console.error(e); el.innerHTML = `<div class="carte carte-alerte"><p>Erreur d'affichage : ${esc(e.message)}</p></div>`; }
   window.scrollTo(0, y);
   document.body.classList.remove('menu-ouvert');
   majBandeau();
+  majPastilleTextes();
+}
+
+// Pastille sur « Textes du site » tant qu'il reste des modifications non enregistrées
+function majPastilleTextes() {
+  $('#menu a[data-vue="textes"]')?.classList.toggle('a-enregistrer', VUES.textes.aDesModifications());
 }
 
 function majBandeau() {
@@ -86,7 +93,8 @@ function demarrer(user) {
   window.addEventListener('hashchange', () => { fermerFenetre(); rendreVue(); });
   S.surChangement(() => rendreVue());
   S.surErreur(err => toast(S.messageErreur(err), 'erreur'));
-  $('#contenu').addEventListener('input', () => { $('#contenu').dataset.modifie = '1'; });
+  $('#contenu').addEventListener('input', () => { $('#contenu').dataset.modifie = '1'; majPastilleTextes(); });
+  window.addEventListener('beforeunload', e => { if (VUES.textes.aDesModifications()) { e.preventDefault(); e.returnValue = ''; } });
   $('#contenu').addEventListener('submit', () => { setTimeout(() => { $('#contenu').dataset.modifie = '0'; }, 0); }, true);
   $('#bouton-menu').onclick = () => document.body.classList.toggle('menu-ouvert');
   $('#voile-menu').onclick = () => document.body.classList.remove('menu-ouvert');

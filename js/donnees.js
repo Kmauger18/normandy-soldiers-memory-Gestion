@@ -4,39 +4,93 @@ import { SITE_URL } from '../firebase-config.js';
 
 // ---------------------------------------------------------------- Textes
 // Chaque champ correspond à un emplacement [data-cms="cle"] du site public.
-export const GROUPES_TEXTES = [
-  { titre: 'Accueil', page: '', champs: [
-    { cle: 'accueil_hero_titre', label: 'Grand titre (partie claire)', type: 'ligne', aide: 'Retour à la ligne avec Entrée.', multi: true },
-    { cle: 'accueil_hero_accent', label: 'Grand titre (partie dorée)', type: 'ligne' },
-    { cle: 'accueil_hero_texte', label: 'Texte sous le titre', type: 'texte' },
-    { cle: 'accueil_bienvenue_titre', label: 'Titre « Bienvenue »', type: 'ligne' },
-    { cle: 'accueil_bienvenue_texte', label: 'Texte « Bienvenue »', type: 'texte' },
-    { cle: 'citation', label: 'Citation sous le bleuet', type: 'texte' },
+// Organisation : une page du site → des zones (dans l'ordre où on les voit) → des champs.
+export const PAGES_TEXTES = [
+  { id: 'accueil', titre: 'Accueil', page: '', apercu: 'accueil', zones: [
+    { titre: 'Grand bandeau en haut de page', champs: [
+      { cle: 'accueil_hero_titre', label: 'Grand titre — partie blanche', type: 'titre', max: 40, aide: 'Entrée pour aller à la ligne.' },
+      { cle: 'accueil_hero_accent', label: 'Grand titre — partie dorée', type: 'ligne', max: 30 },
+      { cle: 'accueil_hero_texte', label: 'Texte de présentation', type: 'texte', max: 260 },
+    ]},
+    { titre: 'Section « Bienvenue »', champs: [
+      { cle: 'accueil_bienvenue_titre', label: 'Titre', type: 'ligne', max: 70 },
+      { cle: 'accueil_bienvenue_texte', label: 'Texte', type: 'texte', max: 450 },
+    ]},
+    { titre: 'Citation sous le bleuet', champs: [
+      { cle: 'citation', label: 'Citation', type: 'texte', max: 160 },
+    ]},
   ]},
-  { titre: "L'association", page: 'association.html', champs: [
-    { cle: 'asso_intro', label: 'Texte du bandeau', type: 'texte' },
-    { cle: 'asso_histoire_titre', label: 'Titre « Notre histoire »', type: 'ligne' },
-    { cle: 'asso_histoire_texte', label: 'Texte « Notre histoire »', type: 'texte' },
-    { cle: 'asso_citation', label: 'Phrase mise en avant', type: 'texte' },
-    { cle: 'asso_valeurs_titre', label: 'Titre « Nos valeurs »', type: 'ligne' },
-    { cle: 'asso_valeurs_texte', label: 'Texte « Nos valeurs »', type: 'texte' },
+  { id: 'association', titre: "L'association", page: 'association.html', apercu: 'bandeau', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'asso_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'asso_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
+    { titre: 'Section « Notre histoire »', champs: [
+      { cle: 'asso_histoire_titre', label: 'Titre', type: 'ligne', max: 70 },
+      { cle: 'asso_histoire_texte', label: 'Texte', type: 'texte', max: 450 },
+      { cle: 'asso_citation', label: 'Phrase mise en avant (en italique)', type: 'texte', max: 220 },
+    ]},
+    { titre: 'Section « Nos valeurs »', champs: [
+      { cle: 'asso_valeurs_titre', label: 'Titre', type: 'ligne', max: 70 },
+      { cle: 'asso_valeurs_texte', label: 'Texte', type: 'texte', max: 450 },
+    ]},
   ]},
-  { titre: 'Activités', page: 'activites.html', champs: [
-    { cle: 'act_intro', label: 'Texte du bandeau', type: 'texte' },
-    { cle: 'act_camps_texte', label: 'Camps de reconstitution', type: 'texte' },
-    { cle: 'act_civil_texte', label: 'Reconstitutions civiles', type: 'texte' },
-    { cle: 'act_memoire_texte', label: 'Commémorations & hommages', type: 'texte' },
-    { cle: 'act_partenaires_texte', label: 'Animations sur mesure', type: 'texte' },
+  { id: 'activites', titre: 'Activités', page: 'activites.html', apercu: 'bandeau', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'act_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'act_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
+    { titre: 'Bloc 1 — Militaire', champs: [
+      { cle: 'act_camps_titre', label: 'Titre', type: 'ligne', max: 50 },
+      { cle: 'act_camps_texte', label: 'Texte', type: 'texte', max: 400 },
+    ]},
+    { titre: 'Bloc 2 — Civil', champs: [
+      { cle: 'act_civil_titre', label: 'Titre', type: 'ligne', max: 50 },
+      { cle: 'act_civil_texte', label: 'Texte', type: 'texte', max: 400 },
+    ]},
+    { titre: 'Bloc 3 — Mémoire', champs: [
+      { cle: 'act_memoire_titre', label: 'Titre', type: 'ligne', max: 50 },
+      { cle: 'act_memoire_texte', label: 'Texte', type: 'texte', max: 400 },
+    ]},
+    { titre: 'Bloc 4 — Partenaires', champs: [
+      { cle: 'act_partenaires_titre', label: 'Titre', type: 'ligne', max: 50 },
+      { cle: 'act_partenaires_texte', label: 'Texte', type: 'texte', max: 400 },
+    ]},
   ]},
-  { titre: 'Autres pages', page: null, champs: [
-    { cle: 'historique_intro', label: 'Historique — texte du bandeau', type: 'texte' },
-    { cle: 'archives_intro', label: 'Archives du Front — texte du bandeau', type: 'texte' },
-    { cle: 'agenda_intro', label: 'Agenda — texte du bandeau', type: 'texte' },
-    { cle: 'rejoindre_intro', label: 'Nous rejoindre — texte du bandeau', type: 'texte' },
-    { cle: 'rejoindre_membre', label: 'Nous rejoindre — « Devenir membre »', type: 'texte' },
-    { cle: 'rejoindre_don', label: 'Nous rejoindre — « Faire un don »', type: 'texte' },
-    { cle: 'rejoindre_inviter', label: 'Nous rejoindre — « Nous inviter »', type: 'texte' },
-    { cle: 'contact_intro', label: 'Contact — texte du bandeau', type: 'texte' },
+  { id: 'historique', titre: 'Historique', page: 'historique.html', apercu: 'bandeau', note: 'Les étapes elles-mêmes se modifient dans l\'onglet Historique.', lienNote: '#historique', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'historique_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'historique_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
+  ]},
+  { id: 'archives', titre: 'Archives du Front', page: 'archives.html', apercu: 'bandeau', note: 'Les photos se gèrent dans l\'onglet Archives du Front.', lienNote: '#archives', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'archives_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'archives_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
+  ]},
+  { id: 'agenda', titre: 'Agenda', page: 'agenda.html', apercu: 'bandeau', note: 'Les rendez-vous se gèrent dans l\'onglet Agenda.', lienNote: '#agenda', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'agenda_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'agenda_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
+  ]},
+  { id: 'rejoindre', titre: 'Nous rejoindre', page: 'rejoindre.html', apercu: 'bandeau', note: 'Les questions fréquentes se gèrent dans l\'onglet Questions fréquentes.', lienNote: '#faq', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'rejoindre_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'rejoindre_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
+    { titre: 'Les trois cartes', champs: [
+      { cle: 'rejoindre_membre', label: 'Carte « Devenir membre »', type: 'texte', max: 220 },
+      { cle: 'rejoindre_don', label: 'Carte « Faire un don »', type: 'texte', max: 220 },
+      { cle: 'rejoindre_inviter', label: 'Carte « Nous inviter »', type: 'texte', max: 220 },
+    ]},
+  ]},
+  { id: 'contact', titre: 'Contact', page: 'contact.html', apercu: 'bandeau', note: 'L\'adresse, le téléphone et les liens se modifient dans l\'onglet Coordonnées & liens.', lienNote: '#coordonnees', zones: [
+    { titre: 'Bandeau en haut de page', champs: [
+      { cle: 'contact_titre', label: 'Titre de la page', type: 'ligne', max: 40 },
+      { cle: 'contact_intro', label: 'Texte sous le titre', type: 'texte', max: 200 },
+    ]},
   ]},
 ];
 
@@ -47,6 +101,17 @@ export const TEXTES_ORIGINE = {
   accueil_bienvenue_titre: "Des passionnés d'histoire au service de la mémoire",
   accueil_bienvenue_texte: "Depuis 2020, nos bénévoles revêtent uniformes et tenues civiles d'époque pour recréer la vie des soldats alliés et des familles normandes pendant la bataille de Normandie. Camps reconstitués, véhicules d'époque, cérémonies du souvenir : nous allons à la rencontre du public pour que cette histoire reste vivante.",
   citation: "Se souvenir de ceux qui sont tombés, civils comme militaires, c'est faire le choix de la paix.",
+  asso_titre: "Qui sommes-nous",
+  act_titre: "Faire revivre 1944",
+  historique_titre: "Nos grandes étapes",
+  archives_titre: "Archives du Front",
+  agenda_titre: "Prochains rendez-vous",
+  rejoindre_titre: "Rejoignez le devoir de mémoire",
+  contact_titre: "Prendre contact",
+  act_camps_titre: "Camps de reconstitution",
+  act_civil_titre: "Reconstitutions civiles",
+  act_memoire_titre: "Commémorations & hommages",
+  act_partenaires_titre: "Animations sur mesure",
   asso_intro: "Une association de bénévoles passionnés, née à Ifs, aux portes de Caen, pour perpétuer le devoir de mémoire.",
   asso_histoire_titre: "Faire vivre l'histoire, pas la guerre",
   asso_histoire_texte: "Créée en février 2020, Normandy Soldiers Memory réunit des passionnés de la période 1939-1945. En uniformes et tenues civiles d'époque, avec du matériel authentique ou fidèlement reproduit, nous recréons la vie des soldats alliés et des civils pendant la bataille de Normandie.",
