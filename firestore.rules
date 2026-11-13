@@ -1,0 +1,57 @@
+rules_version = '2';
+
+// Règles de sécurité de la base « Normandy Soldiers Memory »
+// À coller dans Firebase : Firestore Database → onglet Règles → Publier.
+//
+// Accès à l'espace de gestion : tout compte créé dans Firebase Authentication
+// (onglet Users) a accès automatiquement. Aucune adresse à écrire ici.
+// IMPORTANT : l'inscription libre doit rester désactivée
+// (Authentication → Paramètres → Actions de l'utilisateur → décocher
+// « Activer la création (inscription) »), sinon n'importe qui pourrait
+// se créer un compte et modifier le site.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Un membre du bureau = tout compte créé dans Firebase Authentication
+    function estGestionnaire() {
+      return request.auth != null;
+    }
+
+    // Textes, coordonnées, bandeau d'annonce : lus par le site, modifiés par la gestion
+    match /contenu/{id} {
+      allow read: if true;
+      allow write: if estGestionnaire() && id in ['textes', 'coordonnees', 'annonce'];
+    }
+
+    // Agenda, historique, FAQ, photos : le site ne lit que ce qui est visible
+    match /evenements/{id} {
+      allow read: if resource.data.visible == true || estGestionnaire();
+      allow write: if estGestionnaire();
+    }
+    match /historique/{id} {
+      allow read: if resource.data.visible == true || estGestionnaire();
+      allow write: if estGestionnaire();
+    }
+    match /faq/{id} {
+      allow read: if resource.data.visible == true || estGestionnaire();
+      allow write: if estGestionnaire();
+    }
+    match /photos/{id} {
+      allow read: if resource.data.visible == true || estGestionnaire();
+      allow write: if estGestionnaire();
+    }
+
+    // Grandes versions des photos (ouvertes dans la visionneuse du site)
+    match /photos_hd/{id} {
+      allow get: if true;
+      allow list: if estGestionnaire();
+      allow write: if estGestionnaire();
+    }
+
+    // Tout le reste est fermé
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

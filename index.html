@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gestion · Normandy Soldiers Memory</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="application-name" content="Gestion NSM">
+  <meta name="apple-mobile-web-app-title" content="Gestion NSM">
+  <meta name="theme-color" content="#16180f">
+  <link rel="icon" href="img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="img/logo-gestion.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Allerta+Stencil&family=Special+Elite&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/gestion.css">
+</head>
+<body>
+
+  <!-- Chargement -->
+  <div id="ecran-chargement" class="ecran-chargement">
+    <img src="img/logo-gestion.svg" alt="" width="64" height="64">
+    <p>Chargement…</p>
+  </div>
+
+  <!-- Connexion -->
+  <div id="ecran-connexion" class="ecran-connexion" hidden>
+    <div class="connexion-photo" aria-hidden="true"></div>
+    <div class="connexion-panneau">
+      <div class="connexion-boite">
+        <img src="img/logo-gestion.svg" alt="" width="64" height="64" class="connexion-logo">
+        <p class="sur-titre">Espace de gestion</p>
+        <h1>Normandy<br>Soldiers Memory</h1>
+        <form id="form-connexion" novalidate>
+          <div id="connexion-demo" class="info-demo" hidden>
+            <b>Mode démonstration</b> — Firebase n'est pas encore configuré. Cliquez sur « Se connecter » pour découvrir l'espace avec le contenu actuel du site ; rien ne sera modifié en ligne.
+          </div>
+          <div class="champ"><label for="email">Adresse e-mail</label><input id="email" name="email" type="email" autocomplete="username" required></div>
+          <div class="champ"><label for="mdp">Mot de passe</label><input id="mdp" name="mdp" type="password" autocomplete="current-password" required></div>
+          <p id="connexion-erreur" class="erreur-texte" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primaire btn-large">Se connecter</button>
+          <button type="button" id="mdp-oublie" class="lien petit">Mot de passe oublié ?</button>
+        </form>
+        <p class="connexion-pied">Accès réservé aux membres du bureau de l'association.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application -->
+  <div id="ecran-app" class="app" hidden>
+    <aside class="barre-laterale">
+      <a href="#tableau" class="marque">
+        <img src="img/logo-gestion.svg" alt="" width="40" height="40">
+        <span>NORMANDY<br>SOLDIERS MEMORY<small>Gestion du site</small></span>
+      </a>
+      <nav><ul id="menu"></ul></nav>
+      <div class="lateral-pied">
+        <a id="lien-site" href="#" target="_blank" rel="noopener" class="btn btn-contour">Voir le site ↗</a>
+        <p id="utilisateur" class="utilisateur"></p>
+        <button id="deconnexion" class="lien clair">Se déconnecter</button>
+      </div>
+    </aside>
+    <div id="voile-menu" class="voile-menu"></div>
+    <main class="principal">
+      <header class="entete">
+        <button id="bouton-menu" class="btn-icone menu-mobile" aria-label="Menu"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <h2 id="titre-vue">Tableau de bord</h2>
+      </header>
+      <div id="bandeau-etat" class="bandeau-etat" hidden></div>
+      <div id="contenu" class="contenu"></div>
+    </main>
+  </div>
+
+  <!-- Fenêtre (formulaires) -->
+  <div id="fenetre" class="fenetre" hidden role="dialog" aria-modal="true" aria-labelledby="fenetre-titre">
+    <div class="fenetre-boite">
+      <div class="fenetre-tete"><h3 id="fenetre-titre"></h3><button id="fenetre-fermer" class="btn-icone" aria-label="Fermer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+      <div id="fenetre-corps" class="fenetre-corps"></div>
+      <div id="fenetre-pied" class="fenetre-pied"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
